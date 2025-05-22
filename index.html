@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Controle de tempo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="mds.css">
+
+</head>
+
+<body class="open-sans">
+
+    <h1>Agora são exatamente:</h1>
+    <h2 id="relogio"></h2>
+
+    <script>
+        function atualizarRelogio() {
+            const agora = new Date();
+            const horas = agora.getHours().toString().padStart(2, '0'); //1:5:30 -> 01:05:30
+            const minutos = agora.getMinutes().toString().padStart(2, '0');
+            const segundos = agora.getSeconds().toString().padStart(2, '0');
+
+            document.getElementById('relogio').innerText = `${horas}:${minutos}:${segundos}`;
+        }
+
+        setInterval(atualizarRelogio, 1000);
+
+        atualizarRelogio();
+    </script>
+    <hr>
+    <h2 id="cronometro">00:00:00</h2>
+    <div>
+
+        <button onclick="iniciar()" id="btiniciar">Iniciar</button>
+        <button onclick="pausar()" id="btpausar">Pausar</button>
+        <button onclick="zerar()" id="btzerar">Zerar</button>
+
+    </div>
+    <div id="emoji" onclick="soltarConfete()">👍</div>
+    <script>
+
+        let segundos = 0;
+        let intervalo;
+
+        function formatarTime() {
+            const h = String(Math.floor(segundos / 3600)).padStart(2, '0');
+            const m = String(Math.floor((segundos % 3600) / 60)).padStart(2, '0');
+            const s = String(segundos % 60).padStart(2, '0');
+            return `${h}:${m}:${s}`;
+        }
+
+        function atualizarCronometro() {
+            document.getElementById('cronometro').innerText = formatarTime(segundos);
+        }
+        function iniciar() {
+            if (!intervalo) {
+                intervalo = setInterval(() => {
+                    segundos++;
+                    atualizarCronometro();
+                }, 1000);
+            }
+
+            document.getElementById('btiniciar').disabled = true;
+        }
+        function pausar() {
+            if (intervalo) {
+                clearInterval(intervalo);
+                intervalo = null;
+                document.getElementById('btpausar').innerText = 'Retomar';
+            } else if (segundos > 0) {
+                document.getElementById('btpausar').innerText = 'Pausar';
+                iniciar();
+            }
+        }
+
+        function zerar() {
+            clearInterval(intervalo);
+            intervalo = null;
+            segundos = 0;
+            atualizarCronometro();
+            document.getElementById('btpausar').innerText = 'Pausar';
+            document.getElementById('btiniciar').disabled = false;
+        }
+
+        function soltarConfete() {
+            const emoji = document.getElementById('emoji');
+            const rect = emoji.getBoundingClientRect();
+            const emojiX = rect.left + rect.width / 2;
+            const emojiY = rect.top + rect.height / 2;
+
+            for (let i = 0; i < 30; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = `${emojiX}px`;
+                confetti.style.top = `${emojiY}px`;
+                confetti.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
+                confetti.style.setProperty('--x-offset', `${Math.random() * 200 - 100}`);
+                confetti.style.setProperty('--y-offset', `${Math.random() * 50}`);
+                confetti.style.setProperty('--duration', `${2 + Math.random()}s`);
+                document.body.appendChild(confetti);
+
+                setTimeout(() => confetti.remove(), 3000);
+            }
+        }
+    </script>
+</body>
+
+</html>
